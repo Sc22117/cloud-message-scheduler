@@ -1,0 +1,58 @@
+
+body {
+    background: linear-gradient(to right, #f8f9fa, #e0eafc);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .card.shadow-3d {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 1rem;
+    background: linear-gradient(to bottom right, #ffffff, #f1f4f9);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .card.shadow-3d:hover {
+    transform: translateY(-4px);
+  }
+  
+  .input-3d {
+    border: 1px solid #ced4da;
+    border-radius: 0.75rem;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .input-3d:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25), inset 1px 1px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-3d {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .btn-3d:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  .table-3d tbody tr {
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  
+  .table-3d tbody tr:hover {
+    background-color: #f0f4ff;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (max-width: 600px) {
+    .card {
+      margin-bottom: 1rem;
+    }
+  
+    .table {
+      font-size: 0.85rem;
+    }
+  }
+  
