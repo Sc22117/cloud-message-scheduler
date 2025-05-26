@@ -27,3 +27,6 @@ jobs:
         run: node sendScheduler.cjs
         env:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+env:
+  BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+  FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
