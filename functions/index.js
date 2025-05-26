@@ -1,40 +1,49 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const sgMail = require("@sendgrid/mail");
+const Brevo = require("sib-api-v3-sdk");
 
 admin.initializeApp();
 const db = admin.firestore();
 
-// Replace with your actual SendGrid API Key
-sgMail.setApiKey(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);
+// 🔐 Load Brevo API key from Firebase config
+const brevoClient = Brevo.ApiClient.instance;
+brevoClient.authentications["api-key"].apiKey = functions.config().brevo.key;
+const emailApi = new Brevo.TransactionalEmailsApi();
 
-// Cloud Function: Scheduled Message Sender
-exports.sendScheduledMessages = functions.pubsub.schedule("every 1 minutes").onRun(async (context) => {
+// 🕐 Scheduled function to run every 1 minute
+exports.sendScheduledMessages = functions.pubsub.schedule("every 1 minutes").onRun(async () => {
   const now = admin.firestore.Timestamp.now();
-  
-  const snapshot = await db.collection("messages")
+
+  const snapshot = await db.collection("scheduledMessages")
     .where("scheduledAt", "<=", now)
     .where("sent", "==", false)
     .get();
 
-  const updates = [];
+  if (snapshot.empty) {
+    console.log("⏳ No messages to send.");
+    return null;
+  }
 
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    const msg = {
-      to: data.to,
-      from: "gdg.geu.shraddhachauhan.05062005@gmail.com", // Your verified sender
-      subject: data.subject,
-      text: data.text,
+  const tasks = snapshot.docs.map(async (doc) => {
+    const msg = doc.data();
+    const docRef = doc.ref;
+
+    const email = {
+      sender: { name: "Shraddha Chauhan", email: "shraddhachauhan637@gmail.com" }, // Verified Brevo sender
+      to: [{ email: msg.to }],
+      subject: msg.subject || "Scheduled Message",
+      htmlContent: `<p>${msg.text}</p>`
     };
 
-    updates.push(
-      sgMail.send(msg).then(() => {
-        return doc.ref.update({ sent: true });
-      })
-    );
+    try {
+      await emailApi.sendTransacEmail(email);
+      console.log(`📤 Sent to ${msg.to}`);
+      await docRef.update({ sent: true });
+    } catch (error) {
+      console.error(`❌ Failed to send to ${msg.to}:`, error?.response?.body || error);
+    }
   });
 
-  await Promise.all(updates);
-  console.log("Checked and sent scheduled messages");
+  await Promise.all(tasks);
+  return null;
 });
