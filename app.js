@@ -1,3 +1,5 @@
+import firebase from 'firebase/app';
+import 'firebase/firestore'; // Add this to use Firestore
 console.log("🔥 app.js loaded");
 
 // Firebase config
