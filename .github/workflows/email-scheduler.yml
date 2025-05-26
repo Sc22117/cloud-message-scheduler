@@ -18,11 +18,12 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install dependencies
+      - name: Install dependencies in functions folder
+        working-directory: ./functions
         run: npm install
 
       - name: Run sendScheduler
-        run: node functions/sendScheduler.cjs
-
+        working-directory: ./functions
+        run: node sendScheduler.cjs
         env:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
