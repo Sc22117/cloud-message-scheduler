@@ -1,5 +1,6 @@
-import firebase from 'firebase/app';
-import 'firebase/firestore'; // Add this to use Firestore
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+ // Add this to use Firestore
 console.log("🔥 app.js loaded");
 
 // Firebase config
@@ -14,10 +15,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase once
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.firestore();
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+const db = getFirestore(app);
 
 // Submit handler
 document.addEventListener("DOMContentLoaded", () => {
