@@ -1,6 +1,3 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
- // Add this to use Firestore
 console.log("🔥 app.js loaded");
 
 // Firebase config
@@ -15,11 +12,41 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase once
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
-const db = getFirestore(app);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
 
-// Submit handler
 document.addEventListener("DOMContentLoaded", () => {
+  // Load existing messages on page load
+  db.collection("scheduledMessages")
+    .where("sent", "==", false)
+    .get()
+    .then((querySnapshot) => {
+      const tbody = document.getElementById("messageTableBody");
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const scheduledDate = new Date(
+          data.scheduledAt?.seconds
+            ? data.scheduledAt.seconds * 1000
+            : data.scheduledAt
+        );
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.to}</td>
+          <td>${data.text}</td>
+          <td>${scheduledDate.toLocaleString()}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="deleteRow(this)">Delete</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    })
+    .catch((error) => {
+      console.error("❌ Error fetching scheduled messages:", error);
+    });
+
+  // Form submit event
   document.getElementById("messageForm").addEventListener("submit", function (e) {
     e.preventDefault();
     console.log("✅ Form submitted");
@@ -35,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Save to Firestore
     db.collection("scheduledMessages").add({
       to: recipient,
       text: message,
@@ -45,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }).then(() => {
       console.log("📦 Message saved to Firestore");
 
-      // Add to table
       const tbody = document.getElementById("messageTableBody");
       const row = document.createElement("tr");
 
