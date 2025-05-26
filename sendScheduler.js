@@ -11,8 +11,8 @@ admin.initializeApp({
 const db = admin.firestore();
 
 const brevoClient = Brevo.ApiClient.instance;
-const apiKey = brevoClient.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY;
+const apiKey = process.env.BREVO_API_KEY;
+brevoClient.authentications['api-key'].apiKey = apiKey;
 
 const emailApi = new Brevo.TransactionalEmailsApi();
 
