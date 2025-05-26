@@ -1,6 +1,6 @@
 
 body {
-    background: linear-gradient(to right, #222d37, #0c3073);
+    background: linear-gradient(to right, #f8f9fa, #4e75bc);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
@@ -19,7 +19,7 @@ body {
     background-color:#dbe8f9;
   }
   .card-body:hover{
-    box-shadow: 8px -1px 12px black; 
+    box-shadow: 8px -1px 12px black;
     border-radius: 12px;
   }
   .input-3d {
