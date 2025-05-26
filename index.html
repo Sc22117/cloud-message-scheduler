@@ -9,11 +9,6 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- ✅ Firebase v8 (Global namespace support) -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
 </head>
 <body>
   <div class="container py-5">
@@ -23,11 +18,11 @@
         <form id="messageForm">
           <div class="mb-3">
             <label for="recipient" class="form-label">Recipient</label>
-            <input type="text" class="form-control input-3d" id="recipient" required />
+            <input type="text" class="form-control input-3d" placeholder="Enter your email"id="recipient" required />
           </div>
           <div class="mb-3">
             <label for="message" class="form-label">Message</label>
-            <textarea class="form-control input-3d" id="message" rows="3" required></textarea>
+            <textarea class="form-control input-3d" id="message"  placeholder="Enter your message"rows="3" required></textarea>
           </div>
           <div class="mb-3">
             <label for="schedule" class="form-label">Schedule Time</label>
@@ -55,8 +50,8 @@
       </div>
     </div>
   </div>
-
-  <!-- ✅ Move your app logic script HERE -->
-  <script src="app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
