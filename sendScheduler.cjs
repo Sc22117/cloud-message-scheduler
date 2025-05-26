@@ -1,4 +1,5 @@
-require("dotenv").config();
+
+
 const admin = require("firebase-admin");
 const Brevo = require("sib-api-v3-sdk");
 
