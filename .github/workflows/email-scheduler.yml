@@ -17,6 +17,6 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run scheduler script
-        run: node sendScheduler.js
+        run: node sendScheduler.cjs
         env:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
