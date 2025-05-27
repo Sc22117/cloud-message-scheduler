@@ -18,17 +18,17 @@ jobs:
     timeout-minutes: 10  # Prevent hanging workflows
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 2  # Optimize for CI
+      # - name: Checkout repository
+      #   uses: actions/checkout@v3
+      #   with:
+      #     fetch-depth: 2  # Optimize for CI
 
-      - name: Set up Node.js 18
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'functions/package-lock.json'
+      # - name: Set up Node.js 18
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: '18'
+      #     cache: 'npm'
+      #     cache-dependency-path: 'functions/package-lock.json'
 
       - name: Install dependencies
         working-directory: ./functions
