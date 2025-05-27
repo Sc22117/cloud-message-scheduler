@@ -34,6 +34,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
+      - name: Show package.json contents
+        working-directory: ./functions
+        run: head -20 package.json
 
       - name: Show package.json
         working-directory: ./functions
