@@ -2,31 +2,65 @@ name: Scheduled Email Sender
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Every 10 minutes
-  workflow_dispatch:
+    - cron: '*/5 * * * *'  # Every 5 minutes (more frequent than website checks)
+  workflow_dispatch:  # Allow manual triggers
+
+env:
+  CI: true
+  NODE_ENV: production
+  FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
 
 jobs:
-  run-cron:
+  send-emails:
+    name: Send Scheduled Emails
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # Prevent hanging workflows
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Optimize for CI
 
-      - name: Set up Node.js
+      - name: Set up Node.js 18
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'functions/package-lock.json'
 
-      - name: Install dependencies in functions folder
+      - name: Install dependencies
         working-directory: ./functions
-        run: npm install
+        run: |
+          npm ci --omit=dev
+          echo "Dependencies installed"
 
-      - name: Run sendScheduler
+      - name: Verify environment
+        working-directory: ./functions
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "❌ FIREBASE_SERVICE_ACCOUNT is missing"
+            exit 1
+          fi
+          if [ -z "$BREVO_API_KEY" ]; then
+            echo "❌ BREVO_API_KEY is missing"
+            exit 1
+          fi
+          echo "✅ Environment verified"
+
+      - name: Run email scheduler
         working-directory: ./functions
         run: node sendScheduler.cjs
         env:
-          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-env:
-  BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-  FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_DEBUG: false  # Disable verbose Firebase logs
+          MAX_MESSAGES: "100"    # Safety limit
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: scheduler-logs
+          path: |
+            functions/*.log
+            functions/debug.log
