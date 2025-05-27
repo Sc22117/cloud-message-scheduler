@@ -18,7 +18,7 @@ brevoClient.authentications['api-key'].apiKey = apiKey;
 const emailApi = new Brevo.TransactionalEmailsApi();
 
 async function sendScheduledMessages() {
-  const now = new Date();
+  const now = new Date().toISOString();;
   const snapshot = await db.collection("scheduledMessages")
     .where("sent", "==", false)
     .where("scheduledAt", "<=", now)
@@ -37,7 +37,8 @@ async function sendScheduledMessages() {
       sender: { name: "Shraddha Chauhan", email: "shraddhachauhan637@gmail.com" }, // ✅ Must be verified in Brevo
       to: [{ email: msg.to }],
       subject: msg.subject || "Scheduled Message",
-      htmlContent: `<p>${msg.text}</p>`
+      htmlContent: `<p>${msg.text}</p>`,
+      textContent: msg.text
     };
 
     try {
