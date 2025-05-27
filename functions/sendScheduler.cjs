@@ -18,7 +18,7 @@ brevoClient.authentications['api-key'].apiKey = apiKey;
 const emailApi = new Brevo.TransactionalEmailsApi();
 
 async function sendScheduledMessages() {
-  const now = new Date().toISOString();;
+  const now = admin.firestore.Timestamp.now();
   const snapshot = await db.collection("scheduledMessages")
     .where("sent", "==", false)
     .where("scheduledAt", "<=", now)
@@ -42,14 +42,17 @@ async function sendScheduledMessages() {
     };
 
     try {
-      await emailApi.sendTransacEmail(email);
-      console.log(`📤 Sent to ${msg.to}`);
-
-      await db.collection("scheduledMessages").doc(docId).update({ sent: true });
-      console.log(`✅ Marked as sent in Firestore`);
-    } catch (err) {
-      console.error(`❌ Failed to send to ${msg.to}`, err.response?.text || err);
-    }
+  await emailApi.sendTransacEmail({
+    sender: { name: "Shraddha Chauhan", email: "shraddhachauhan637@gmail.com" },
+    to: [{ email: msg.to }],
+    subject: msg.subject || "Scheduled Message",
+    htmlContent: msg.text,
+    textContent: msg.text.replace(/<[^>]*>/g, ""), // Plain text fallback
+  });
+  console.log(`📤 Email sent to ${msg.to}`);
+} catch (err) {
+  console.error("Brevo API Error:", err.response?.body || err.message);
+}
   }
 }
 
