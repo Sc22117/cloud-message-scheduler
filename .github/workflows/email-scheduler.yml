@@ -29,6 +29,21 @@ jobs:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: 'functions/package-lock.json'
+    
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Show package.json
+        working-directory: ./functions
+        run: cat package.json
+
+      - name: Install dependencies
+        working-directory: ./functions
+        run: |
+          npm ci --omit=dev
+          echo "Dependencies installed"
 
       - name: Install dependencies
         working-directory: ./functions
