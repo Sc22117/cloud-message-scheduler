@@ -9,16 +9,22 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "scheduler": "node sendScheduler.cjs",  // 👈 Added new script
+    "test": "jest"  // 👈 Recommended for adding tests
   },
   "dependencies": {
     "firebase-admin": "^12.6.0",
     "firebase-functions": "^6.0.1",
-    "sib-api-v3-sdk": "^8.5.0",
-    "dotenv": "^16.0.3"
+    "@getbrevo/brevo": "^8.6.0",  // 👈 Replaced sib-api-v3-sdk
+    "dotenv": "^16.0.3",
+    "node-cron": "^3.0.2",  // 👈 Optional for local scheduling
+    "winston": "^3.11.0"  // 👈 Recommended for better logging
   },
   "devDependencies": {
-    "firebase-functions-test": "^3.1.0"
+    "firebase-functions-test": "^3.1.0",
+    "jest": "^29.7.0",  // 👈 Recommended for testing
+    "nodemon": "^3.0.2"  // 👈 For local development
   },
   "private": true
 }
