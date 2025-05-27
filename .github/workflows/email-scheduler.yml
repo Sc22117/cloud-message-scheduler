@@ -56,11 +56,11 @@ jobs:
           FIREBASE_DEBUG: false  # Disable verbose Firebase logs
           MAX_MESSAGES: "100"    # Safety limit
 
-      - name: Upload logs on failure
-        if: failure()
-        uses: actions/upload-artifact@v2
-        with:
-          name: scheduler-logs
-          path: |
-            functions/*.log
-            functions/debug.log
+      # - name: Upload logs on failure
+      #   if: failure()
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: scheduler-logs
+      #     path: |
+      #       functions/*.log
+      #       functions/debug.log
