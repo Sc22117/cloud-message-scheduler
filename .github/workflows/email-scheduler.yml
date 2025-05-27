@@ -2,8 +2,8 @@ name: Scheduled Email Sender
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes (more frequent than website checks)
-  workflow_dispatch:  # Allow manual triggers
+    - cron: '*/5 * * * *'  # Every 5 minutes
+  workflow_dispatch:
 
 env:
   CI: true
@@ -15,20 +15,20 @@ jobs:
   send-emails:
     name: Send Scheduled Emails
     runs-on: ubuntu-latest
-    timeout-minutes: 10  # Prevent hanging workflows
+    timeout-minutes: 10
 
     steps:
-      # - name: Checkout repository
-      #   uses: actions/checkout@v3
-      #   with:
-      #     fetch-depth: 2  # Optimize for CI
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
 
-      # - name: Set up Node.js 18
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '18'
-      #     cache: 'npm'
-      #     cache-dependency-path: 'functions/package-lock.json'
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'functions/package-lock.json'
 
       - name: Install dependencies
         working-directory: ./functions
@@ -53,14 +53,9 @@ jobs:
         working-directory: ./functions
         run: node sendScheduler.cjs
         env:
-          FIREBASE_DEBUG: false  # Disable verbose Firebase logs
-          MAX_MESSAGES: "100"    # Safety limit
+          FIREBASE_DEBUG: false
+          MAX_MESSAGES: "100"
 
-      # - name: Upload logs on failure
-      #   if: failure()
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: scheduler-logs
-      #     path: |
-      #       functions/*.log
-      #       functions/debug.log
+      - name: Upload logs on failure (disabled)
+        if: false
+        run: echo "Skipping upload-artifact due to known issue"
