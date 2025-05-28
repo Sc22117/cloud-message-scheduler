@@ -1,4 +1,6 @@
-// 🔥 Firebase Initialization ===================================
+console.log("🔥 app.js loaded");
+
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDbR2Mg6HyDp9gB5dA-u2efd4Iv2DVCxVU",
   authDomain: "cloud-message-scheduler-new.firebaseapp.com",
@@ -9,150 +11,85 @@ const firebaseConfig = {
   measurementId: "G-3XRHMP1CCR"
 };
 
-// Initialize Firebase with persistence
+// Initialize Firebase once
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
-  firebase.firestore().enablePersistence()
-    .catch(err => console.warn("Persistence failed:", err));
 }
 const db = firebase.firestore();
 
-// 🚀 DOM Ready Handler ========================================
 document.addEventListener("DOMContentLoaded", () => {
-  initMessageTable();
-  setupFormListener();
-});
-
-// 📋 Table Initialization =====================================
-function initMessageTable() {
-  const tbody = document.getElementById("messageTableBody");
-  tbody.innerHTML = '<tr><td colspan="4" class="text-center">Loading messages...</td></tr>';
-
+  // Load existing messages on page load
   db.collection("scheduledMessages")
     .where("sent", "==", false)
-    .orderBy("scheduledAt", "asc")
-    .onSnapshot((querySnapshot) => {
-      if (querySnapshot.empty) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No pending messages</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = '';
+    .get()
+    .then((querySnapshot) => {
+      const tbody = document.getElementById("messageTableBody");
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        const row = createTableRow(doc.id, data);
+        const scheduledDate = new Date(
+          data.scheduledAt?.seconds
+            ? data.scheduledAt.seconds * 1000
+            : data.scheduledAt
+        );
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.to}</td>
+          <td>${data.text}</td>
+          <td>${scheduledDate.toLocaleString()}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="deleteRow(this)">Delete</button></td>
+        `;
         tbody.appendChild(row);
       });
-    }, (error) => {
-      console.error("Error listening to messages:", error);
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center error">Error loading messages</td></tr>`;
+    })
+    .catch((error) => {
+      console.error("❌ Error fetching scheduled messages:", error);
     });
-}
 
-// ✉️ Form Handling ===========================================
-function setupFormListener() {
-  const form = document.getElementById("messageForm");
-  const submitBtn = form.querySelector("button[type='submit']");
-
-  form.addEventListener("submit", async (e) => {
+  // Form submit event
+  document.getElementById("messageForm").addEventListener("submit", function (e) {
     e.preventDefault();
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Sending...';
+    console.log("✅ Form submitted");
 
-    try {
-      const { recipient, message, schedule } = getFormData();
-      validateForm(recipient, message, schedule);
+    const recipient = document.getElementById("recipient").value.trim();
+    const message = document.getElementById("message").value.trim();
+    const schedule = document.getElementById("schedule").value;
 
-      await db.collection("scheduledMessages").add({
-        to: recipient,
-        text: message,
-        htmlContent: `<p>${message}</p>`,
-        scheduledAt: firebase.firestore.Timestamp.fromDate(new Date(schedule)),
-        subject: "Scheduled Message",
-        sent: false,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        status: "pending"
-      });
+    console.log("📩 Data:", { recipient, message, schedule });
 
-      showAlert('success', 'Message scheduled successfully!');
-      form.reset();
-    } catch (error) {
-      console.error("Submission error:", error);
-      showAlert('danger', error.message || 'Failed to schedule message');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Schedule Message';
+    if (!recipient || !message || !schedule) {
+      alert("Please fill out all fields.");
+      return;
     }
+
+    db.collection("scheduledMessages").add({
+      to: recipient,
+      text: message,
+      scheduledAt: new Date(schedule),
+      subject: "Scheduled Message",
+      sent: false
+    }).then(() => {
+      console.log("📦 Message saved to Firestore");
+
+      const tbody = document.getElementById("messageTableBody");
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${recipient}</td>
+        <td>${message}</td>
+        <td>${new Date(schedule).toLocaleString()}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteRow(this)">Delete</button></td>
+      `;
+
+      tbody.appendChild(row);
+      this.reset();
+    }).catch((error) => {
+      console.error("❌ Firestore Error:", error);
+    });
   });
-}
+});
 
-// 🛠 Utility Functions ========================================
-function getFormData() {
-  return {
-    recipient: document.getElementById("recipient").value.trim(),
-    message: document.getElementById("message").value.trim(),
-    schedule: document.getElementById("schedule").value
-  };
-}
-
-function validateForm(recipient, message, schedule) {
-  if (!recipient || !message || !schedule) {
-    throw new Error("Please fill all fields");
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
-    throw new Error("Please enter a valid email address");
-  }
-  if (new Date(schedule) < new Date()) {
-    throw new Error("Scheduled time must be in the future");
-  }
-}
-
-function createTableRow(docId, data) {
-  const row = document.createElement("tr");
-  row.dataset.id = docId;
-  
-  const scheduledDate = data.scheduledAt?.toDate 
-    ? data.scheduledAt.toDate() 
-    : new Date(data.scheduledAt);
-
-  row.innerHTML = `
-    <td>${data.to}</td>
-    <td>${data.text}</td>
-    <td>${scheduledDate.toLocaleString()}</td>
-    <td>
-      <button class="btn btn-sm btn-danger" onclick="deleteMessage('${docId}', this)">
-        <i class="bi bi-trash"></i> Delete
-      </button>
-    </td>
-  `;
-  return row;
-}
-
-function showAlert(type, message) {
-  const alertDiv = document.createElement("div");
-  alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-  alertDiv.innerHTML = `
-    ${message}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  `;
-  document.getElementById("alertsContainer").prepend(alertDiv);
-  setTimeout(() => alertDiv.remove(), 5000);
-}
-
-// 🗑 Delete Function ==========================================
-window.deleteMessage = async function(docId, button) {
-  if (!confirm("Are you sure you want to delete this message?")) return;
-  
+function deleteRow(button) {
   const row = button.closest("tr");
-  row.classList.add("deleting");
-
-  try {
-    await db.collection("scheduledMessages").doc(docId).delete();
-    row.remove();
-    showAlert('success', 'Message deleted successfully');
-  } catch (error) {
-    console.error("Delete error:", error);
-    row.classList.remove("deleting");
-    showAlert('danger', 'Failed to delete message');
-  }
-};
+  row.remove();
+}n
