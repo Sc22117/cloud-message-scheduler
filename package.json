@@ -1,52 +1,13 @@
 {
   "name": "cloud-message-scheduler",
   "version": "1.0.0",
-  "description": "Frontend for Cloud Message Scheduler with Firebase and Brevo integration",
-  "main": "app.js",
+  "main": "sendScheduler.js",
   "scripts": {
-    "start": "live-server --port=3000 --open=/ --host=localhost",
-    "dev": "live-server --port=3000 --open=/ --host=localhost",
-    "build": "echo 'Building frontend assets...'",
-    "test": "jest --watchAll",
-    "lint": "eslint .",
-    "format": "prettier --write ."
+    "start": "node sendScheduler.js"
   },
   "dependencies": {
-    "firebase": "^9.22.2",
-    "bootstrap": "^5.3.2",
-    "bootstrap-icons": "^1.11.1"
-  },
-  "devDependencies": {
-    "live-server": "^1.2.2",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.29.1",
-    "jest": "^29.7.0",
-    "prettier": "^3.2.4",
-    "sass": "^1.69.5",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
-  },
-  "browserslist": [
-    "> 0.5%",
-    "last 2 versions",
-    "not dead"
-  ],
-  "author": "Your Name <your.email@example.com>",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourusername/cloud-message-scheduler.git"
-  },
-  "keywords": [
-    "firebase",
-    "scheduler",
-    "email",
-    "brevo",
-    "cloud"
-  ],
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "firebase-admin": "^12.6.0",
+    "dotenv": "^16.0.3",
+    "sib-api-v3-sdk": "^8.5.0"
   }
 }
