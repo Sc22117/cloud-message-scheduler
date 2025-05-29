@@ -2,78 +2,27 @@ name: Scheduled Email Sender
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes
+    - cron: '*/10 * * * *'  # Every 10 minutes
   workflow_dispatch:
 
-env:
-  CI: true
-  NODE_ENV: production
-  FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-  BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-
 jobs:
-  send-emails:
-    name: Send Scheduled Emails
+  run-cron:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
 
-      - name: Set up Node.js 18
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'functions/package-lock.json'
-    
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-      - name: Show package.json contents
-        working-directory: ./functions
-        run: head -20 package.json
-
-      - name: Show package.json
-        working-directory: ./functions
-        run: cat package.json
 
       - name: Install dependencies
-        working-directory: ./functions
-        run: |
-          npm ci --omit=dev
-          echo "Dependencies installed"
+        run: npm install
 
-      - name: Install dependencies
-        working-directory: ./functions
-        run: |
-          npm ci --omit=dev
-          echo "Dependencies installed"
-
-      - name: Verify environment
-        working-directory: ./functions
-        run: |
-          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
-            echo "❌ FIREBASE_SERVICE_ACCOUNT is missing"
-            exit 1
-          fi
-          if [ -z "$BREVO_API_KEY" ]; then
-            echo "❌ BREVO_API_KEY is missing"
-            exit 1
-          fi
-          echo "✅ Environment verified"
-
-      - name: Run email scheduler
-        working-directory: ./functions
-        run: node sendScheduler.cjs
+      - name: Run sendScheduler
+        run: node sendScheduler.js
         env:
-          FIREBASE_DEBUG: false
-          MAX_MESSAGES: "100"
-
-      - name: Upload logs on failure (disabled)
-        if: false
-        run: echo "Skipping upload-artifact due to known issue"
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
