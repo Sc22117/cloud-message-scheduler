@@ -1,8 +1,0 @@
-{
-  "projects": {
-    "default": "cloud-message-schedular",
-    "new-project": "cloud-message-scheduler-new"
-  },
-  "targets": {},
-  "etags": {}
-}
